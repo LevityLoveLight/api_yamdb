@@ -8,7 +8,7 @@ from rest_framework.pagination import LimitOffsetPagination
 
 from yamdb.models import Categories, Genres, Comment, Review, Titles, User
 from .mixins import CreateListDestroyViewSet
-from .permissions import AdminOrReadOnly, GetPermissionsReview, ReviewPermissions
+from .permissions import AdminOrReadOnly, ReviewPermissions
 from .serializer import (CommentSerializer, ReviewSerializer,
                          CategoriesSerializer, GenresSerializer,
                          TitlesSerializer, ReadOnlyTitleSerializer)
