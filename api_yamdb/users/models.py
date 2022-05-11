@@ -24,5 +24,16 @@ class User(AbstractUser):
     role = models.CharField("Роль пользователя", max_length=10,
                             choices=ROLE, default=USER_ROLE)
 
+    @property
+    def is_admin(self):
+        return self.ROLE == ADMIN_ROLE
+
+    @property
+    def is_moderator(self):
+        return self.ROLE == MODERATOR_ROLE
+
+    def __str__(self):
+        return self.username
+
     class Meta:
-        ordering = ("username",)
+        ordering = ['id']
