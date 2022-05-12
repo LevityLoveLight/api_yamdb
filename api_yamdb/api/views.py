@@ -62,7 +62,6 @@ class ReviewsViewSet(viewsets.ModelViewSet):
     permission_classes = (ReviewPermissions,)
 
 
-
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
