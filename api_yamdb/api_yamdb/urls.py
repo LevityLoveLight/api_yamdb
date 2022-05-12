@@ -5,6 +5,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView
     )
+from rest_framework.authtoken import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -14,7 +15,6 @@ urlpatterns = [
         name='redoc'
     ),
     path('api/', include('api.urls')),
-    path('users/', include('users.urls')),
     path(
         'api/token/',
         TokenObtainPairView.as_view(),
@@ -25,4 +25,5 @@ urlpatterns = [
         TokenRefreshView.as_view(),
         name='token_refresh'
     ),
+    path('api-token-auth/', views.obtain_auth_token),
 ]
