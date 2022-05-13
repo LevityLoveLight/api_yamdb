@@ -61,13 +61,13 @@ class Titles(models.Model):
 
 
 class GenreTitle(models.Model):
-    genre = models.ForeignKey(
-        Genres,
+    title = models.ForeignKey(
+        Titles,
         on_delete=models.CASCADE,
         related_name='titles'
     )
-    title = models.ForeignKey(
-        Titles,
+    genre = models.ForeignKey(
+        Genres,
         on_delete=models.CASCADE,
         related_name='genres'
     )
