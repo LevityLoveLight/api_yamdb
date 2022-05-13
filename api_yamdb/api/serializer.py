@@ -1,7 +1,6 @@
 from yamdb.models import Review, Comment, Categories, Genres, Titles
-from users.models import User
 from rest_framework import serializers
-
+from users.models import User
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -72,14 +71,16 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = '__all__'
         model = User
+        fields = ['first_name', 'last_name', 'username',
+                                'bio', 'email', 'role']
 
 
-class EmailSerializer(serializers.Serializer):
+class UserCreateSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
+    username = serializers.CharField(required=True)
 
 
-class ConfirmationSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
+class UserTokenSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
     confirmation_code = serializers.CharField(required=True)

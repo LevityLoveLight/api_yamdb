@@ -3,7 +3,7 @@ from rest_framework import routers
 
 from .views import (CategoryViewSet, CommentViewSet,
                     GenreViewSet, ReviewsViewSet,
-                    TitleViewSet, UserViewSet, email, get_jwt_token)
+                    TitleViewSet, UserViewSet, signup, get_jwt_token)
 
 v1_router = routers.DefaultRouter()
 
@@ -23,6 +23,6 @@ v1_comment = v1_router.register(
 
 urlpatterns = [
     path('v1/', include(v1_router.urls)),
-    path('v1/auth/email/', email),
+    path('v1/auth/signup/', signup),
     path('v1/auth/token/', get_jwt_token),
 ]

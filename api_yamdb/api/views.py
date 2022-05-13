@@ -7,21 +7,21 @@ from django.contrib.auth.tokens import default_token_generator
 from rest_framework import viewsets, status
 from rest_framework import filters, permissions
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.decorators import permission_classes
+from rest_framework.decorators import permission_classes, action, api_view
 
 
 
 from yamdb.models import Categories, Genres, Comment, Review, Titles, User
 from .mixins import CreateListDestroyViewSet
-from .permissions import AdminOrReadOnly, ReviewPermissions
+from .permissions import AdminOrReadOnly, ReviewPermissions, IsAdmin
 from .serializer import (CommentSerializer, ReviewSerializer,
                          CategoriesSerializer, GenresSerializer,
                          TitlesSerializer, ReadOnlyTitleSerializer,
-                         UserSerializer, EmailSerializer,
-                         ConfirmationSerializer)
+                         UserSerializer, UserCreateSerializer,
+                         UserTokenSerializer)
 
 
 
@@ -54,13 +54,12 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in ('list', 'retrieve'):
             return ReadOnlyTitleSerializer
         return TitlesSerializer
-     
+
 
 class ReviewsViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = (ReviewPermissions,)
-
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -81,21 +80,25 @@ class CommentViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAdmin]
 
+    @action(methods=['patch', 'get'], detail=False,
+            permission_classes=[permissions.IsAuthenticated])
     def me(self, request):
-        user = get_object_or_404(User, username=request.user.username)
         if request.method == 'GET':
-            serializer = UserSerializer(user)
+            serializer = UserSerializer(self.request.user)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        if request.method == 'PATCH':
-            if serializer.is_valid():
-                serializer.save()
+        serializer = UserSerializer(self.request.user,
+                                    data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(role=request.user.role, partial=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+@api_view(['POST'])
 @permission_classes([AllowAny])
 def get_jwt_token(request):
-    serializer = ConfirmationSerializer(data=request.data)
+    serializer = UserTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     email = serializer.data.get('email')
     confirmation_code = serializer.data.get('confirmation_code')
@@ -108,13 +111,23 @@ def get_jwt_token(request):
     )
 
 
+@api_view(['POST'])
 @permission_classes([AllowAny])
-def email(self, request):
-    serializer = EmailSerializer(data=request.data)
-    serializer.is_valid()
-    email = serializer.data.get('email')
-    user = User.objects.get_or_create(email=email)
+def signup(request):
+    serializer = UserCreateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    email = serializer.validated_data['email']
+    username = serializer.validated_data['username']
+    if (
+        User.objects.filter(email=email).exists()
+        or User.objects.filter(username=username).exists()
+    ):
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    user, code_created = User.objects.get_or_create(
+        email=email, username=username)
     confirmation_code = default_token_generator.make_token(user)
+    user.confirmation_code = confirmation_code
+    user.save()
     send_mail(
         "Yambd account activation",
         "confirmation_code: " + confirmation_code,
@@ -122,4 +135,7 @@ def email(self, request):
         [email],
         fail_silently=False,
     )
-    return Response(request.data, status=status.HTTP_200_OK)
+    return Response(
+        serializer.data,
+        status=status.HTTP_200_OK
+    )
