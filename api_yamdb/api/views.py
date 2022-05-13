@@ -24,7 +24,6 @@ from .serializer import (CommentSerializer, ReviewSerializer,
                          UserTokenSerializer)
 
 
-
 class CategoryViewSet(CreateListDestroyViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
@@ -60,12 +59,14 @@ class ReviewsViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = (ReviewPermissions,)
+    pagination_class = LimitOffsetPagination
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (ReviewPermissions,)
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         comment_id = self.kwargs.get('comment_id')
@@ -81,6 +82,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdmin]
+    pagination_class = LimitOffsetPagination
     lookup_field = 'username'
 
     @action(methods=['patch', 'get'], detail=False,
