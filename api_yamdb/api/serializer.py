@@ -55,12 +55,10 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    model = Review
 
     class Meta:
-        fields = [
-
-        ]
+        model = Review
+        fields = '__all__'
 
 
 class CommentSerializer(serializers.ModelSerializer):
