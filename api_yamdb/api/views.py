@@ -15,6 +15,7 @@ from rest_framework.decorators import permission_classes, action, api_view
 
 
 from yamdb.models import Categories, Genres, Comment, Review, Titles, User
+from .filtres import TitleFilter
 from .mixins import CreateListDestroyViewSet
 from .permissions import AdminOrReadOnly, ReviewPermissions, IsAdmin
 from .serializer import (CommentSerializer, ReviewSerializer,
@@ -28,7 +29,8 @@ class CategoryViewSet(CreateListDestroyViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (AdminOrReadOnly,)
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+    pagination_class = LimitOffsetPagination
+    filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
 
@@ -37,6 +39,7 @@ class GenreViewSet(CreateListDestroyViewSet):
     queryset = Genres.objects.all()
     serializer_class = GenresSerializer
     permission_classes = (AdminOrReadOnly,)
+    pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -46,13 +49,14 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all().annotate(Avg('reviews__score'))
     permission_classes = (AdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
-    filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
-            return ReadOnlyTitleSerializer
-        return TitlesSerializer
+        if self.request.method in ('POST', 'PATCH'):
+            return TitlesSerializer
+        return ReadOnlyTitleSerializer
 
 
 class ReviewsViewSet(viewsets.ModelViewSet):
