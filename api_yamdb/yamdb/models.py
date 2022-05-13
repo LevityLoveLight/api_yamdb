@@ -52,7 +52,7 @@ class Titles(models.Model):
     description = models.TextField(
         verbose_name='Описание'
     )
-    year = models.DateField(
+    year = models.IntegerField(
         'Дата добавления'
     )
 

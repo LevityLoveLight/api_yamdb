@@ -3,7 +3,6 @@ from rest_framework import serializers
 from users.models import User
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
-from django.db.models import Avg
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -37,7 +36,7 @@ class TitlesSerializer(serializers.ModelSerializer):
 
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
     name = serializers.CharField(read_only=True),
-    year = serializers.DateField(read_only=True),
+    year = serializers.IntegerField(read_only=True)
     category = CategoriesSerializer(read_only=True),
     genre = GenresSerializer(read_only=True),
     rating = serializers.FloatField(read_only=True)
