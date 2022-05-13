@@ -3,17 +3,19 @@ from rest_framework import serializers
 from users.models import User
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
+from django.db.models import Avg
+
 
 class CategoriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categories
-        fields = '__all__'
+        fields = ('name', 'slug')
 
 
 class GenresSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genres
-        fields = '__all__'
+        fields = ('name', 'slug')
 
 
 class TitlesSerializer(serializers.ModelSerializer):
@@ -30,7 +32,7 @@ class TitlesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Titles
-        fields = '__all__'
+        fields = ('id', 'name', 'year', 'category', 'genre', 'description')
 
 
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
@@ -42,7 +44,15 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Titles
-        fields = '__all__'
+        fields = (
+            'id',
+            'name',
+            'year',
+            'rating',
+            'category',
+            'genre',
+            'description',
+        )
 
 
 class ReviewSerializer(serializers.ModelSerializer):
