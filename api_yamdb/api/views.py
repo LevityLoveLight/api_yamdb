@@ -1,27 +1,28 @@
 from django.db.models import Avg
-from django.shortcuts import get_object_or_404
-from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
 from django_filters.rest_framework import DjangoFilterBackend
-
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework import filters, permissions
+from rest_framework.decorators import permission_classes, action, api_view
+from rest_framework.exceptions import ParseError
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.decorators import permission_classes, action, api_view
 
-from reviews.models import Categories, Genres, Comment, Review, Title, User
 from .filtres import TitleFilter
 from .mixins import CreateListDestroyViewSet
-from .permissions import (AdminOrReadOnly, ReviewPermissions,
-                          IsAdmin, CommentPermission)
+from .permissions import (AdminOrReadOnly,
+                          ReviewAndCommentPermission,
+                          IsAdmin)
 from .serializer import (CommentSerializer, ReviewSerializer,
                          CategoriesSerializer, GenresSerializer,
                          TitlesSerializer, ReadOnlyTitleSerializer,
                          UserSerializer, UserCreateSerializer,
                          UserTokenSerializer)
+from reviews.models import Categories, Genres, Comment, Review, Title, User
 
 
 class CategoryViewSet(CreateListDestroyViewSet):
@@ -61,18 +62,26 @@ class TitleViewSet(viewsets.ModelViewSet):
 class ReviewsViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = (ReviewPermissions,)
+    permission_classes = (ReviewAndCommentPermission,)
     pagination_class = LimitOffsetPagination
 
+    def get_queryset(self):
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, pk=title_id)
+        return title.reviews.all()
+
     def perform_create(self, serializer):
-        user = get_object_or_404(User, username=self.request.user.username)
-        serializer.save(author=user)
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, pk=title_id)
+        if Review.objects.filter(title=title_id, author=self.request.user):
+            raise ParseError('Вы уже создали отзыв на данное произведение')
+        serializer.save(title=title, author=self.request.user)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = (CommentPermission,)
+    permission_classes = (ReviewAndCommentPermission,)
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):

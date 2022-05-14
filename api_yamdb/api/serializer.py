@@ -1,11 +1,9 @@
-from rest_framework.exceptions import ValidationError
-from rest_framework.validators import UniqueTogetherValidator
-from django.db.models import Avg
-from reviews.models import Review, Comment, Categories, Genres, Title
-from rest_framework import serializers
-from users.models import User
-from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
+from django.shortcuts import get_object_or_404
+from rest_framework import serializers
+
+from reviews.models import Review, Comment, Categories, Genres, Title
+from users.models import User
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -40,10 +38,14 @@ class TitlesSerializer(serializers.ModelSerializer):
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
     genre = GenresSerializer(many=True)
     category = CategoriesSerializer(read_only=True)
+    rating = serializers.IntegerField(
+        source='reviews__score__avg', read_only=True
+    )
 
     class Meta:
         model = Title
-        fields = '__all__'
+        fields = (
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category')
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -67,8 +69,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         title = self.context.get('title')
         request = self.context.get('request')
         if (
-            request.method != 'PATCH' and
-            Review.objects.filter(title=title, author=request.user).exists()
+            request.method != 'PATCH'
+                and Review.objects.filter(
+                title=title,
+                author=request.user).exists()
         ):
             raise serializers.ValidationError('Score already exists')
         return data

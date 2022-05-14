@@ -277,12 +277,14 @@ class Test05ReviewAPI:
             'возвращается статус 200'
         )
         data = response.json()
+        print(data)
         assert data.get('text') == 'jdfk', (
             'Проверьте, что при PATCH запросе `/api/v1/titles/{title_id}/reviews/{review_id}/` '
             'возвращаете данные объекта. Значение `text` изменено.'
         )
         response = admin_client.get(f'/api/v1/titles/{titles[0]["id"]}/')
         data = response.json()
+        print(data)
         assert data.get('rating') == 7, (
             'Проверьте, что при GET запросе `/api/v1/titles/{title_id}/` '
             'с отзывами возвращается правильно значение `rating`'
