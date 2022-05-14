@@ -4,28 +4,28 @@ import pytest
 @pytest.fixture
 def user_superuser(django_user_model):
     return django_user_model.objects.create_superuser(
-        username='TestSuperuser', email='testsuperuser@yamdb.fake', password='1234567', role='user', bio='superuser bio'
+        username='TestSuperuser', email='testsuperuser@reviews.fake', password='1234567', role='user', bio='superuser bio'
     )
 
 
 @pytest.fixture
 def admin(django_user_model):
     return django_user_model.objects.create_user(
-        username='TestAdmin', email='testadmin@yamdb.fake', password='1234567', role='admin', bio='admin bio'
+        username='TestAdmin', email='testadmin@reviews.fake', password='1234567', role='admin', bio='admin bio'
     )
 
 
 @pytest.fixture
 def moderator(django_user_model):
     return django_user_model.objects.create_user(
-        username='TestModerator', email='testmoder@yamdb.fake', password='1234567', role='moderator', bio='moder bio'
+        username='TestModerator', email='testmoder@reviews.fake', password='1234567', role='moderator', bio='moder bio'
     )
 
 
 @pytest.fixture
 def user(django_user_model):
     return django_user_model.objects.create_user(
-        username='TestUser', email='testuser@yamdb.fake', password='1234567', role='user', bio='user bio'
+        username='TestUser', email='testuser@reviews.fake', password='1234567', role='user', bio='user bio'
     )
 
 

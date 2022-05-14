@@ -1,6 +1,6 @@
 import django_filters
 
-from yamdb.models import Titles
+from reviews.models import Title
 
 
 class TitleFilter(django_filters.FilterSet):
@@ -16,5 +16,5 @@ class TitleFilter(django_filters.FilterSet):
     year = django_filters.CharFilter(field_name='year', lookup_expr='contains')
 
     class Meta:
-        model = Titles
+        model = Title
         fields = ('genre', 'category', 'name', 'year')

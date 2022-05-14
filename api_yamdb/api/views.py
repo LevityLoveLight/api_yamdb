@@ -14,7 +14,7 @@ from rest_framework.decorators import permission_classes, action, api_view
 
 
 
-from yamdb.models import Categories, Genres, Comment, Review, Titles, User
+from reviews.models import Categories, Genres, Comment, Review, Title, User
 from .filtres import TitleFilter
 from .mixins import CreateListDestroyViewSet
 from .permissions import AdminOrReadOnly, ReviewPermissions, IsAdmin
@@ -46,7 +46,7 @@ class GenreViewSet(CreateListDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Titles.objects.all().annotate(Avg('reviews__score'))
+    queryset = Title.objects.all().annotate(Avg('reviews__score'))
     permission_classes = (AdminOrReadOnly,)
     pagination_class = LimitOffsetPagination
     search_fields = ('name',)
@@ -65,6 +65,10 @@ class ReviewsViewSet(viewsets.ModelViewSet):
     permission_classes = (ReviewPermissions,)
     pagination_class = LimitOffsetPagination
 
+    def perform_create(self, serializer):
+        user = get_object_or_404(User, username=self.request.user.username)
+        serializer.save(author=user)
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
@@ -73,13 +77,14 @@ class CommentViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
-        comment_id = self.kwargs.get('comment_id')
-        post = get_object_or_404(Comment, pk=comment_id )
-        return post.comments.filter(post_id=comment_id )
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, pk=review_id)
+        return review.comments.all()
 
     def perform_create(self, serializer):
-        user = get_object_or_404(User, username=self.request.user.username)
-        serializer.save(author=user)
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, id=review_id)
+        serializer.save(author=self.request.user, review=review)
 
 
 class UserViewSet(viewsets.ModelViewSet):

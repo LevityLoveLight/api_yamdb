@@ -1,4 +1,7 @@
-from yamdb.models import Review, Comment, Categories, Genres, Titles
+from rest_framework.exceptions import ValidationError
+from rest_framework.validators import UniqueTogetherValidator
+
+from reviews.models import Review, Comment, Categories, Genres, Title
 from rest_framework import serializers
 from users.models import User
 from django.shortcuts import get_object_or_404
@@ -30,7 +33,7 @@ class TitlesSerializer(serializers.ModelSerializer):
     description = serializers.CharField(required=False)
 
     class Meta:
-        model = Titles
+        model = Title
         fields = ('id', 'name', 'year', 'category', 'genre', 'description')
 
 
@@ -41,15 +44,36 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
         source='reviews__score__avg', read_only=True)
 
     class Meta:
-        model = Titles
+        model = Title
         fields = '__all__'
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+    )
 
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = [
+            'id',
+            'text',
+            'author',
+            'score',
+            'pub_date'
+        ]
+        extra_kwargs = {'title': {'required': False}}
+
+    def validate(self, data):
+        title = self.context.get('title')
+        request = self.context.get('request')
+        if (
+            request.method != 'PATCH' and
+            Review.objects.filter(title=title, author=request.user).exists()
+        ):
+            raise serializers.ValidationError('Score already exists')
+        return data
 
 
 class CommentSerializer(serializers.ModelSerializer):
