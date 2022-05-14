@@ -12,12 +12,11 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import permission_classes, action, api_view
 
-
-
 from reviews.models import Categories, Genres, Comment, Review, Title, User
 from .filtres import TitleFilter
 from .mixins import CreateListDestroyViewSet
-from .permissions import AdminOrReadOnly, ReviewPermissions, IsAdmin
+from .permissions import (AdminOrReadOnly, ReviewPermissions,
+                          IsAdmin, CommentPermission)
 from .serializer import (CommentSerializer, ReviewSerializer,
                          CategoriesSerializer, GenresSerializer,
                          TitlesSerializer, ReadOnlyTitleSerializer,
@@ -73,7 +72,7 @@ class ReviewsViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = (ReviewPermissions,)
+    permission_classes = (CommentPermission,)
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
