@@ -138,10 +138,7 @@ def signup(request):
     serializer.is_valid(raise_exception=True)
     email = serializer.validated_data['email']
     username = serializer.validated_data['username']
-    try:
-        user, _ = User.objects.get_or_create(username=username, email=email)
-    except Exception:
-        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+    user, _ = User.objects.get_or_create(username=username, email=email)
     confirmation_code = default_token_generator.make_token(user)
     user.confirmation_code = confirmation_code
     user.save()

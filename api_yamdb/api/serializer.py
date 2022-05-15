@@ -99,9 +99,17 @@ class UserCreateSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
 
     def validate(self, data):
+        email = data['email']
+        username = data['username']
         if data['username'] == 'me':
             raise serializers.ValidationError(
                 {'Выберите другой username'})
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError(
+                {'Уже зарегестрирован'})
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError(
+                {'Уже зарегестрирован'})
         return data
 
 
