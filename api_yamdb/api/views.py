@@ -70,7 +70,10 @@ class ReviewsViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         title_id = self.kwargs.get('title_id')
         title = get_object_or_404(Title, pk=title_id)
-        if Review.objects.filter(title=title_id, author=self.request.user):
+        if Review.objects.filter(
+                title=title_id,
+                author=self.request.user
+        ).exists():
             raise ParseError('Вы уже создали отзыв на данное произведение')
         serializer.save(title=title, author=self.request.user)
 

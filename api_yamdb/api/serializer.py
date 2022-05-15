@@ -77,21 +77,26 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = [
+        fields = (
             'id',
             'text',
             'author',
             'pub_date',
-        ]  # Если указать '__alL__' выпадают ошибки
+        )
         model = Comment
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username',
-                                'bio', 'email', 'role']
-        # Если указать '__alL__' выпадает 20+ ошибок
+        fields = (
+            'first_name',
+            'last_name',
+            'username',
+            'bio',
+            'email',
+            'role'
+        )
 
 
 class UserCreateSerializer(serializers.Serializer):
