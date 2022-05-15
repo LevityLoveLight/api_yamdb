@@ -23,6 +23,9 @@ class User(AbstractUser):
     role = models.CharField("Роль пользователя", max_length=10,
                             choices=ROLE, default=USER)
 
+    class Meta:
+        ordering = ['id']
+
     @property
     def is_admin(self):
         return any(
@@ -35,6 +38,3 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
-
-    class Meta:
-        ordering = ['id']
