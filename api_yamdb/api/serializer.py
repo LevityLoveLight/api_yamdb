@@ -32,7 +32,7 @@ class TitlesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year', 'category', 'genre', 'description')
+        fields = '__all__'
 
 
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
@@ -44,8 +44,7 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = (
-            'id', 'name', 'year', 'rating', 'description', 'genre', 'category')
+        fields = '__all__'
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -56,13 +55,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = [
-            'id',
-            'text',
-            'author',
-            'score',
-            'pub_date'
-        ]
+        fields = '__all__'
         extra_kwargs = {'title': {'required': False}}
 
     def validate(self, data):
