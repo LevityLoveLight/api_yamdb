@@ -1,8 +1,7 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-
-from reviews.models import Review, Comment, Categories, Genres, Title
+from reviews.models import Categories, Comment, Genres, Review, Title
 from users.models import User
 
 
@@ -83,7 +82,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'text',
             'author',
             'pub_date',
-        ]
+        ]  # Если указать '__alL__' выпадают ошибки
         model = Comment
 
 
@@ -92,6 +91,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['first_name', 'last_name', 'username',
                                 'bio', 'email', 'role']
+        # Если указать '__alL__' выпадает 20+ ошибок
 
 
 class UserCreateSerializer(serializers.Serializer):
